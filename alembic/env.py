@@ -58,12 +58,6 @@ def run_migrations_offline() -> None:
 
 
 def run_migrations_online() -> None:
-    """Run migrations in 'online' mode.
-
-    In this scenario we need to create an Engine
-    and associate a connection with the context.
-
-    """
     connectable = async_engine_from_config(
         config.get_section(config.config_ini_section),
         prefix="sqlalchemy.",
@@ -72,16 +66,17 @@ def run_migrations_online() -> None:
 
     async def do_run_migrations():
         async with connectable.connect() as connection:
-            await connection.run_sync(
-                lambda sync_connection: context.configure(
+
+            def sync_run_migrations(sync_connection):
+                context.configure(
                     connection=sync_connection,
                     target_metadata=target_metadata,
                 )
-            )
 
-            await connection.run_sync(
-                lambda sync_connection: context.run_migrations()
-            )
+                with context.begin_transaction():
+                    context.run_migrations()
+
+            await connection.run_sync(sync_run_migrations)
 
     asyncio.run(do_run_migrations())
 
