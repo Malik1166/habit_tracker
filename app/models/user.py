@@ -1,4 +1,3 @@
-from sqlalchemy.orm import declarative_base
 from sqlalchemy import String, Boolean, DateTime, Column, func 
 from sqlalchemy.dialects.postgresql import UUID
 import uuid
